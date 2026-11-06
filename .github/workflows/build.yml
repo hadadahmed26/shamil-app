@@ -29,6 +29,24 @@ jobs:
         
         echo "include ':app'" > settings.gradle
         
+        cat << 'EOF' > settings.gradle
+        pluginManagement {
+            repositories {
+                google()
+                mavenCentral()
+                gradlePluginPortal()
+            }
+        }
+        dependencyResolutionManagement {
+            repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+            repositories {
+                google()
+                mavenCentral()
+            }
+        }
+        include ':app'
+        EOF
+
         cat << 'EOF' > app/build.gradle
         plugins {
             id 'com.android.application'
@@ -40,6 +58,8 @@ jobs:
                 applicationId "com.shamil.almaerifa"
                 minSdk 21
                 targetSdk 34
+                versionCode 1
+                versionName "1.0"
             }
         }
         dependencies {
@@ -47,9 +67,6 @@ jobs:
         }
         EOF
 
-        # تثبيت محرك البناء واستخدام الأمر المباشر
-        mvn --version || true
-        # استخدام Gradle مباشر عبر تحميله أو استخدام أداة بديلة خفيفة
         wget -q https://services.gradle.org/distributions/gradle-8.1-bin.zip
         unzip -q gradle-8.1-bin.zip
         export PATH=$PWD/gradle-8.1/bin:$PATH
