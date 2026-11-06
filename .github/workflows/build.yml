@@ -18,7 +18,7 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Build APK with standard tools
+    - name: Compile and Build APK
       run: |
         mkdir -p app/src/main/java/com/shamil/almaerifa
         mkdir -p app/src/main/res/layout
@@ -40,8 +40,6 @@ jobs:
                 applicationId "com.shamil.almaerifa"
                 minSdk 21
                 targetSdk 34
-                versionCode 1
-                versionName "1.0"
             }
         }
         dependencies {
@@ -49,28 +47,15 @@ jobs:
         }
         EOF
 
-        cat << 'EOF' > build.gradle
-        buildscript {
-            repositories {
-                google()
-                mavenCentral()
-            }
-            dependencies {
-                classpath 'com.android.tools.build:gradle:8.1.0'
-            }
-        }
-        allprojects {
-            repositories {
-                google()
-                mavenCentral()
-            }
-        }
-        EOF
+        # تثبيت محرك البناء واستخدام الأمر المباشر
+        mvn --version || true
+        # استخدام Gradle مباشر عبر تحميله أو استخدام أداة بديلة خفيفة
+        wget -q https://services.gradle.org/distributions/gradle-8.1-bin.zip
+        unzip -q gradle-8.1-bin.zip
+        export PATH=$PWD/gradle-8.1/bin:$PATH
+        gradle assembleDebug
 
-        echo "org.gradle.jvmargs=-Xmx2048m" > gradle.properties
-        ./gradlew assembleDebug
-
-    - name: Upload APK File
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: shamil-app-apk
