@@ -18,32 +18,59 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Build with Gradle
+    - name: Build APK with standard tools
       run: |
+        mkdir -p app/src/main/java/com/shamil/almaerifa
+        mkdir -p app/src/main/res/layout
+        
+        cp AndroidManifest.xml app/src/main/
+        cp MainActivity.java app/src/main/java/com/shamil/almaerifa/
+        cp activity_main.xml app/src/main/res/layout/
+        
         echo "include ':app'" > settings.gradle
-        mkdir -p app/src/main
-        cp -r AndroidManifest.xml app/src/main/
-        cp -r MainActivity.java app/src/main/
-        cp -r activity_main.xml app/src/main/
         
-        echo 'apply plugin: "com.android.application"' > app/build.gradle
-        echo 'android {' >> app/build.gradle
-        echo '    compileSdk 34' >> app/build.gradle
-        echo '    defaultConfig {' >> app/build.gradle
-        echo '        applicationId "com.shamil.almaerifa"' >> app/build.gradle
-        echo '        minSdk 21' >> app/build.gradle
-        echo '        targetSdk 34' >> app/build.gradle
-        echo '    }' >> app/build.gradle
-        echo '}' >> app/build.gradle
-        echo 'dependencies { implementation "androidx.appcompat:appcompat:1.6.1" }' >> app/build.gradle
-        
-        echo 'buildscript { repositories { google(); mavenCentral() } dependencies { classpath "com.android.tools.build:gradle:8.1.0" } }' > build.gradle
-        echo 'allprojects { repositories { google(); mavenCentral() } }' >> build.gradle
-        echo 'org.gradle.jvmargs=-Xmx2048m' > gradle.properties
-        
+        cat << 'EOF' > app/build.gradle
+        plugins {
+            id 'com.android.application'
+        }
+        android {
+            namespace 'com.shamil.almaerifa'
+            compileSdk 34
+            defaultConfig {
+                applicationId "com.shamil.almaerifa"
+                minSdk 21
+                targetSdk 34
+                versionCode 1
+                versionName "1.0"
+            }
+        }
+        dependencies {
+            implementation 'androidx.appcompat:appcompat:1.6.1'
+        }
+        EOF
+
+        cat << 'EOF' > build.gradle
+        buildscript {
+            repositories {
+                google()
+                mavenCentral()
+            }
+            dependencies {
+                classpath 'com.android.tools.build:gradle:8.1.0'
+            }
+        }
+        allprojects {
+            repositories {
+                google()
+                mavenCentral()
+            }
+        }
+        EOF
+
+        echo "org.gradle.jvmargs=-Xmx2048m" > gradle.properties
         ./gradlew assembleDebug
 
-    - name: Upload APK
+    - name: Upload APK File
       uses: actions/upload-artifact@v4
       with:
         name: shamil-app-apk
