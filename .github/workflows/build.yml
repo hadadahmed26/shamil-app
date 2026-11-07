@@ -18,12 +18,14 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Simple Build APK
+    - name: Final Build APK
       run: |
         mkdir -p app/src/main/java/com/shamil/almaerifa
         mkdir -p app/src/main/res/layout
         
-        cp AndroidManifest.xml app/src/main/
+        # تعديل ملف AndroidManifest تلقائياً لإزالة الـ package المعارض
+        sed '/package=/d' AndroidManifest.xml > app/src/main/AndroidManifest.xml
+        
         cp MainActivity.java app/src/main/java/com/shamil/almaerifa/
         cp activity_main.xml app/src/main/res/layout/
         
@@ -32,6 +34,7 @@ jobs:
         cat << 'EOF' > app/build.gradle
         apply plugin: 'com.android.application'
         android {
+            namespace 'com.shamil.almaerifa'
             compileSdk 34
             defaultConfig {
                 applicationId "com.shamil.almaerifa"
@@ -64,7 +67,6 @@ jobs:
 
         echo "org.gradle.jvmargs=-Xmx2048m" > gradle.properties
         
-        # تحميل جاردل وتنفيذ البناء مباشرة
         wget -q https://services.gradle.org/distributions/gradle-8.1-bin.zip
         unzip -q gradle-8.1-bin.zip
         export PATH=$PWD/gradle-8.1/bin:$PATH
